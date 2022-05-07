@@ -4,6 +4,7 @@ import './App.css'
 import positive from './img/positive.svg'
 import negative from './img/negative.svg'
 import neutral from './img/neutral.svg'
+import useDebounce from './useDebounce'
 
 type Sentiment = 1 | 0 | -1;
 
@@ -16,14 +17,13 @@ function Emoji({ sentiment }: { sentiment: Sentiment }) {
   }
   return <img src={negative} className="emoji" />
 
-
-
 }
 
 function App() {
-
   const [comment, setComment] = useState("");
   const [sentiment, setSentiment] = useState<Sentiment>(0);
+
+  const debounceComment = useDebounce(comment, 500)
 
   useEffect(() => {
     async function fetchSentiment(comment: string) {
@@ -34,8 +34,10 @@ function App() {
         .then((res) => res.data);
       setSentiment(result.sentiment);
     }
-    fetchSentiment(comment);
-  }, [comment]);
+    if (debounceComment) {
+      fetchSentiment(debounceComment);
+    }
+  }, [debounceComment]);
 
   return (
     <div className="App">
